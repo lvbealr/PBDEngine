@@ -2,9 +2,11 @@ set(CORE_SOURCES
     src/physics.cpp
     src/particle_system.cpp
     src/constraints.cpp
+    src/self_collision.cpp
     include/physics.hpp
     include/particle_system.hpp
     include/constraints.hpp
+    include/self_collision.hpp
 )
 
 add_library(PhysicsCore STATIC ${CORE_SOURCES})

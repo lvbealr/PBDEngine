@@ -4,6 +4,7 @@
 
 #include "particle_system.hpp"
 #include "constraints.hpp"
+#include "self_collision.hpp"
 
 namespace core {
 
@@ -63,8 +64,9 @@ void Physics::add_constraint(Constraint* constraint) {
 }
 
 void Physics::update(float dt) {
-  if (dt <= 0.0f)
+  if (dt <= 0.0f) {
     return;
+  }
 
   const std::size_t count = ps_->get_current().size();
   auto& velocities = ps_->get_velocities();
@@ -103,14 +105,55 @@ void Physics::update(float dt) {
     for (auto* constraint : constraints_) {
       constraint->project(*ps_, iterations_);
     }
+
+    resolve_self_collisions(*ps_);
   }
 
   for (std::size_t i = 0; i < count; ++i) {
-    if (inv_masses[i] <= 0.0f)
+    if (inv_masses[i] <= 0.0f) {
       continue;
+    }
 
     velocities[i] = (predicted[i] - current[i]) / dt;
     current[i] = predicted[i];
+  }
+}
+
+void Physics::resolve_self_collisions(ParticleSystem& ps) {
+  auto& predicted = ps.get_predicted();
+  const auto& inv_masses = ps.get_inv_masses();
+  float radius = 0.2f;
+  float min_dist = radius * 2.0f;
+
+  SpatialHashGrid grid(min_dist);
+  grid.build(predicted);
+
+  for (std::size_t i = 0; i < predicted.size(); ++i) {
+    if (inv_masses[i] == 0.0f) {
+      continue;
+    }
+
+    auto neighbors = grid.get_neighbours(predicted[i]);
+    for (std::size_t j : neighbors) {
+      if (i == j) {
+        continue;
+      }
+
+      glm::vec3 dir = predicted[i] - predicted[j];
+      float dist = glm::length(dir);
+
+      if (dist < min_dist && dist > 1e-6f) {
+        float w1 = inv_masses[i];
+        float w2 = inv_masses[j];
+        float w_sum = w1 + w2;
+
+        float error = min_dist - dist;
+        glm::vec3 correction = (dir / dist) * (error / w_sum);
+
+        predicted[i] += w1 * correction;
+        predicted[j] -= w2 * correction;
+      }
+    }
   }
 }
 

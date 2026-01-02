@@ -43,6 +43,9 @@ class Physics {
   void update(float dt);
 
  private:
+  void resolve_self_collisions(ParticleSystem& ps);
+
+ private:
   ParticleSystem* ps_;
   glm::vec3 gravity_ = kGravity;
   std::size_t iterations_ = kPosIterations;
