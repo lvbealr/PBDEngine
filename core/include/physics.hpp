@@ -6,19 +6,16 @@
 
 #include "particle_system.hpp"
 #include "constraints.hpp"
+#include "common.hpp"
 
 namespace core {
 
 // ========================================================================= //
 
 class Physics {
- private:
-  static inline constexpr glm::vec3 kGravity = glm::vec3(0.0f, -9.81f, 0.0f);
-  static inline constexpr std::size_t kPosIterations = 30;
-
  public:
   Physics() = default;
-  Physics(ParticleSystem* ps, glm::vec3 gravity);
+  Physics(ParticleSystem* ps, details::Config* config);
   Physics(Physics& /* unused */) = default;
   Physics(Physics&& /* unused */) noexcept = default;
   ~Physics();
@@ -48,9 +45,7 @@ class Physics {
 
  private:
   ParticleSystem* ps_;
-  glm::vec3 gravity_ = kGravity;
-  std::size_t iterations_ = kPosIterations;
-
+  details::Config* config_;
   std::vector<Constraint*> constraints_;
 };
 

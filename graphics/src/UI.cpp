@@ -1,6 +1,8 @@
 #include "graphics/include/UI.hpp"
 #include "raylib.h"
 
+#include "common.hpp"
+
 namespace graphics {
 
 // ========================================================================= //
@@ -75,7 +77,7 @@ void UI::checkbox(int x, int y, int size, const std::string& label,
 
 // ------------------------------------------------------------------------- //
 
-bool UI::draw_interface(Config& config) {
+bool UI::draw_interface(details::Config& config) {
   bool reset = false;
   DrawRectangle(5, 5, 260, 400, Fade(BLACK, 0.7f));
   DrawRectangleLines(5, 5, 260, 400, WHITE);
@@ -92,8 +94,9 @@ bool UI::draw_interface(Config& config) {
 
   checkbox(20, 240, 20, "Pause Simulation", config.is_paused);
   checkbox(20, 280, 20, "Show Grid", config.show_grid);
+  checkbox(20, 320, 20, "Enable Wind", config.wind_enabled);
 
-  if (button(20, 330, 220, 40, "RESET SIM")) {
+  if (button(20, 350, 220, 40, "RESET SIM")) {
     reset = true;
   }
 

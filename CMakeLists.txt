@@ -17,6 +17,7 @@ endif()
 add_subdirectory(core)
 add_subdirectory(graphics)
 add_subdirectory(interaction)
+add_subdirectory(common)
 
 add_executable(${PROJECT_NAME} main.cpp)
 
@@ -30,6 +31,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     PhysicsCore 
     GraphicsModule
     InteractionSystem
+    CommonDetails
     ${RAYLIB_LIBRARY}
     "-framework IOKit" 
     "-framework Cocoa" 

@@ -4,6 +4,8 @@
 #include <glm/glm.hpp>
 #include <raylib.h>
 
+#include "common.hpp"
+
 namespace graphics {
 
 // ========================================================================= //
@@ -15,13 +17,14 @@ struct Config {
   bool show_grid = true;
   bool show_constraints = true;
   bool visible = false;
+  bool wind_enabled = false;
 };
 
 // ========================================================================= //
 
 class UI {
  public:
-  static bool draw_interface(Config& config);
+  static bool draw_interface(::details::Config& config);
 
  private:
   static bool button(int x, int y, int w, int h, const std::string& text);

@@ -14,3 +14,5 @@ add_library(PhysicsCore STATIC ${CORE_SOURCES})
 target_include_directories(PhysicsCore PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} include/)
 
 target_include_directories(PhysicsCore PRIVATE ${GLM_INCLUDE_DIRS})
+
+target_link_libraries(PhysicsCore PRIVATE CommonDetails)

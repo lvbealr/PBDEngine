@@ -5,13 +5,14 @@
 #include "particle_system.hpp"
 #include "constraints.hpp"
 #include "self_collision.hpp"
+#include "common.hpp"
 
 namespace core {
 
 // ========================================================================= //
 
-Physics::Physics(ParticleSystem* ps, glm::vec3 gravity = Physics::kGravity)
-    : ps_(ps), gravity_(gravity) {}
+Physics::Physics(ParticleSystem* ps, details::Config* config)
+    : ps_(ps), config_(config) {}
 
 Physics::~Physics() {
   for (auto* c : constraints_) {
@@ -24,27 +25,27 @@ Physics::~Physics() {
 // ------------------------------------------------------------------------- //
 
 void Physics::set_gravity(const glm::vec3& gravity) {
-  gravity_ = gravity;
+  config_->gravity = gravity;
 }
 
 glm::vec3& Physics::get_gravity() {
-  return gravity_;
+  return config_->gravity;
 }
 
 const glm::vec3& Physics::get_gravity() const {
-  return gravity_;
+  return config_->gravity;
 }
 
 void Physics::set_iterations(std::size_t iterations) {
-  iterations_ = iterations;
+  config_->iterations = iterations;
 }
 
 std::size_t& Physics::get_iterations() {
-  return iterations_;
+  return config_->iterations;
 }
 
 const std::size_t& Physics::get_iterations() const {
-  return iterations_;
+  return config_->iterations;
 }
 
 std::vector<Constraint*>* Physics::get_constraints() {
@@ -70,7 +71,7 @@ void Physics::remove_constraint(Constraint* constraint) {
 }
 
 void Physics::update(float dt) {
-  if (dt <= 0.0f) {
+  if (dt <= 0.0f || config_->is_paused) {
     return;
   }
 
@@ -88,13 +89,14 @@ void Physics::update(float dt) {
       continue;
     }
 
-    glm::vec3 external_force = gravity_;
+    glm::vec3 external_force = config_->gravity;
 
-    // TODO: on by button
-    // float wind_wave = sin(time * 3.0f + current[i].x * 0.5f) * 4.0f;
-    // float wind_strength = 12.0f + wind_wave;
-    // external_force += glm::vec3(0.0f, 0.0f, wind_strength);
-    // external_force.y += cos(time * 5.0f) * 2.0f;
+    if (config_->wind_enabled) {
+      float wind_wave = sin(time * 3.0f + current[i].x * 0.5f) * 4.0f;
+      float wind_strength = 12.0f + wind_wave;
+      external_force += glm::vec3(0.0f, 0.0f, wind_strength);
+      external_force.y += cos(time * 5.0f) * 2.0f;
+    }
 
     velocities[i] += external_force * dt;
 
@@ -107,9 +109,9 @@ void Physics::update(float dt) {
     constraint->prepare(*ps_, dt);
   }
 
-  for (std::size_t iter = 0; iter < iterations_; ++iter) {
+  for (std::size_t iter = 0; iter < config_->iterations; ++iter) {
     for (auto* constraint : constraints_) {
-      constraint->project(*ps_, iterations_);
+      constraint->project(*ps_, config_->iterations);
     }
 
     resolve_self_collisions(*ps_);
@@ -121,6 +123,23 @@ void Physics::update(float dt) {
     }
 
     velocities[i] = (predicted[i] - current[i]) / dt;
+
+    if (predicted[i].y <= 0.06f) {
+      if (velocities[i].y < 0.0f) {
+        velocities[i].y = 0;
+      }
+
+      velocities[i].x *= 0.5f;
+      velocities[i].z *= 0.5f;
+
+      if (glm::length(glm::vec2(velocities[i].x, velocities[i].z)) < 0.1f) {
+        velocities[i].x = 0.0f;
+        velocities[i].z = 0.0f;
+      }
+
+      predicted[i].y = 0.05f;
+    }
+
     current[i] = predicted[i];
   }
 }

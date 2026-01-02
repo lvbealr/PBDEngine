@@ -12,3 +12,5 @@ target_include_directories(GraphicsModule PRIVATE
     ${GLM_INCLUDE_DIRS}
     ${RAYLIB_INCLUDE_DIR}
 )
+
+target_link_libraries(GraphicsModule PRIVATE CommonDetails)

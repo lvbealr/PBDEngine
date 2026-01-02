@@ -10,3 +10,5 @@ target_include_directories(InteractionSystem PUBLIC include/)
 target_include_directories(InteractionSystem PRIVATE ${CMAKE_SOURCE_DIR})
 
 target_include_directories(InteractionSystem PRIVATE ${GLM_INCLUDE_DIRS})
+
+target_link_libraries(InteractionSystem PRIVATE CommonDetails)
