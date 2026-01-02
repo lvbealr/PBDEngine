@@ -79,21 +79,9 @@ void InteractionSystem::release() {
 void InteractionSystem::process_cutting(const Camera3D& camera) {
   Ray ray = GetMouseRay(GetMousePosition(), camera);
   const auto& positions = ps_->get_current();
-  const auto& constraints = physics_->get_constraints();
+  auto* constraints = physics_->get_constraints();
 
-  std::vector<size_t> hit_particles;
-  for (size_t i = 0; i < positions.size(); ++i) {
-    RayCollision col = GetRayCollisionSphere(
-        ray, {positions[i].x, positions[i].y, positions[i].z}, 0.3f);
-
-    if (col.hit) {
-      hit_particles.push_back(i);
-    }
-  }
-
-  if (hit_particles.empty()) {
-    return;
-  }
+  const float cutting_threshold = 0.4f; // TODO:
 
   for (auto it = constraints->begin(); it != constraints->end();) {
     if ((*it)->get_type() == core::ConstraintType::Collision) {
@@ -104,11 +92,19 @@ void InteractionSystem::process_cutting(const Camera3D& camera) {
     auto& indices = (*it)->get_indices();
     bool needs_removal = false;
 
-    for (size_t particle_idx : hit_particles) {
-      if (std::find(indices.begin(), indices.end(), particle_idx)
-          != indices.end()) {
+    if (indices.size() >= 2) {
+      glm::vec3 center(0.0f);
+      for (auto idx : indices) {
+        center += positions[idx];
+      }
+
+      center /= static_cast<float>(indices.size());
+
+      RayCollision col = GetRayCollisionSphere(
+          ray, {center.x, center.y, center.z}, cutting_threshold);
+
+      if (col.hit) {
         needs_removal = true;
-        break;
       }
     }
 
