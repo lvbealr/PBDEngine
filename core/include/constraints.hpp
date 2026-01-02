@@ -87,12 +87,18 @@ class SphereCollisionConstraint : public Constraint {
 // ========================================================================= //
 
 class AttachmentConstraint : public Constraint {
+ public:
   AttachmentConstraint(std::size_t i, glm::vec3 target_pos);
 
   void project(ParticleSystem& ps, std::size_t iterations) override;
   void set_target(glm::vec3& new_pos);
 
+  std::vector<std::size_t>& get_indices() override;
+  const std::vector<std::size_t>& get_indices() const override;
+  ConstraintType get_type() const override;
+
  private:
+  std::vector<std::size_t> indices_;
   std::size_t i_;
   glm::vec3 target_pos_;
 };

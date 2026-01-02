@@ -125,7 +125,7 @@ ConstraintType SphereCollisionConstraint::get_type() const {
 // ========================================================================= //
 
 AttachmentConstraint::AttachmentConstraint(std::size_t i, glm::vec3 target_pos)
-    : i_(i), target_pos_(target_pos) {}
+    : indices_({i}), i_(i), target_pos_(target_pos) {}
 
 void AttachmentConstraint::project(ParticleSystem& ps, std::size_t iterations) {
   ps.get_predicted()[i_] = target_pos_;
@@ -133,6 +133,18 @@ void AttachmentConstraint::project(ParticleSystem& ps, std::size_t iterations) {
 
 void AttachmentConstraint::set_target(glm::vec3& new_pos) {
   target_pos_ = new_pos;
+}
+
+std::vector<std::size_t>& AttachmentConstraint::get_indices() {
+  return indices_;
+}
+
+const std::vector<std::size_t>& AttachmentConstraint::get_indices() const {
+  return indices_;
+}
+
+ConstraintType AttachmentConstraint::get_type() const {
+  return ConstraintType::Collision;
 }
 
 // ========================================================================= //
