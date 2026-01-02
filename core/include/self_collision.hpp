@@ -2,24 +2,28 @@
 #define SELF_COLLISION_H_
 
 #include <cstddef>
-#include <unordered_map>
 #include <vector>
 #include <glm/glm.hpp>
 
 class SpatialHashGrid {
  public:
-  explicit SpatialHashGrid(float cell_size);
+  SpatialHashGrid(float cell_size, std::size_t num_particles);
 
  public:
   void build(const std::vector<glm::vec3>& positions);
-  std::vector<std::size_t> get_neighbours(const glm::vec3& position) const;
+  void query_neighbours(const glm::vec3& position,
+                        std::vector<std::size_t>& out) const;
 
  private:
-  std::uint64_t hash(const glm::vec3& position) const;
+  std::uint32_t get_hash(int ix, int iy, int iz) const;
 
  private:
   float cell_size_;
-  std::unordered_map<std::uint64_t, std::vector<std::size_t>> grid_;
+  std::size_t table_size_;
+
+  std::vector<uint32_t> cell_starts_;
+  std::vector<uint32_t> cell_counts_;
+  std::vector<std::size_t> particle_indices_;
 };
 
-#endif // SELF_COLLISION_H_
+#endif  // SELF_COLLISION_H_
