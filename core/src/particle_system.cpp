@@ -1,9 +1,8 @@
 #include "particle_system.hpp"
 
-// ============================== ParticleSystem =========================== //
-// --------------------------------  get/set  ------------------------------ //
-
 namespace core {
+
+// ========================================================================= //
 
 void ParticleSystem::set_current(std::vector<glm::vec3>& current) {
   current_ = current;
@@ -75,6 +74,11 @@ void ParticleSystem::clear() {
   inv_masses_.clear();
 }
 
+std::size_t ParticleSystem::count() {
+  ParticleSystem::validate();
+  return current_.size();
+}
+
 // ------------------------------------------------------------------------- //
 
 int ParticleSystem::add_particle(glm::vec3 pos, float mass) {
@@ -87,5 +91,7 @@ int ParticleSystem::add_particle(glm::vec3 pos, float mass) {
 
   return current_.size() - 1;
 }
+
+// ========================================================================= //
 
 }  // namespace core

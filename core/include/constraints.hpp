@@ -5,6 +5,8 @@
 
 namespace core {
 
+// ========================================================================= //
+
 enum class ConstraintType {
   Distance,
   Bending,
@@ -12,6 +14,8 @@ enum class ConstraintType {
   Collision,
   Attachment
 };
+
+// ========================================================================= //
 
 class Constraint {
  public:
@@ -22,6 +26,8 @@ class Constraint {
   virtual const std::vector<std::size_t>& get_indices() const = 0;
   virtual ConstraintType get_type() const = 0;
 };
+
+// ========================================================================= //
 
 class DistanceConstraint : public Constraint {
  public:
@@ -39,6 +45,8 @@ class DistanceConstraint : public Constraint {
   float stiffness_;
 };
 
+// ========================================================================= //
+
 class PlaneCollisionConstraint : public Constraint {
  public:
   PlaneCollisionConstraint(std::size_t i, float floor);
@@ -53,6 +61,8 @@ class PlaneCollisionConstraint : public Constraint {
   std::size_t i_;
   float floor_;
 };
+
+// ========================================================================= //
 
 class SphereCollisionConstraint : public Constraint {
  public:
@@ -73,6 +83,8 @@ class SphereCollisionConstraint : public Constraint {
   float radius_;
 };
 
+// ========================================================================= //
+
 class AttachmentConstraint : public Constraint {
   AttachmentConstraint(std::size_t i, glm::vec3 target_pos);
 
@@ -83,6 +95,8 @@ class AttachmentConstraint : public Constraint {
   std::size_t i_;
   glm::vec3 target_pos_;
 };
+
+// ========================================================================= //
 
 class BendingConstraint : public Constraint {
  public:
@@ -99,6 +113,8 @@ class BendingConstraint : public Constraint {
   std::vector<std::size_t> indices_;
   float stiffness_;
 };
+
+// ========================================================================= //
 
 }  // namespace core
 

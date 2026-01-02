@@ -9,6 +9,8 @@
 
 namespace core {
 
+// ========================================================================= //
+
 class Physics {
  private:
   static inline constexpr glm::vec3 kGravity = glm::vec3(0.0f, -9.81f, 0.0f);
@@ -25,9 +27,13 @@ class Physics {
   Physics& operator=(Physics&& /* unused */) noexcept = default;
 
  public:
-  void set_gravity(glm::vec3& gravity);
+  void set_gravity(const glm::vec3& gravity);
   glm::vec3& get_gravity();
   const glm::vec3& get_gravity() const;
+
+  void set_iterations(std::size_t iterations);
+  std::size_t& get_iterations();
+  const std::size_t& get_iterations() const;
 
   std::vector<Constraint*> get_constraints();
   const std::vector<Constraint*> get_constraints() const;
@@ -39,9 +45,12 @@ class Physics {
  private:
   ParticleSystem* ps_;
   glm::vec3 gravity_ = kGravity;
+  std::size_t iterations_ = kPosIterations;
 
   std::vector<Constraint*> constraints_;
 };
+
+// ========================================================================= //
 
 }  // namespace core
 

@@ -6,6 +6,8 @@
 
 namespace core {
 
+// ========================================================================= //
+
 class ParticleSystem {
  public:
   ParticleSystem() = default;
@@ -32,6 +34,7 @@ class ParticleSystem {
   void validate();
   void reserve(std::size_t capacity);
   void clear();
+  std::size_t count();
 
  public:
   int add_particle(glm::vec3 pos, float mass);
@@ -42,6 +45,8 @@ class ParticleSystem {
   std::vector<glm::vec3> velocities_;
   std::vector<float> inv_masses_;
 };
+
+// ========================================================================= //
 
 }  // namespace core
 

@@ -3,6 +3,8 @@
 
 namespace core {
 
+// ========================================================================= //
+
 DistanceConstraint::DistanceConstraint(std::size_t i1, std::size_t i2,
                                        float stiffness = 1.0f)
     : indices_({i1, i2}), stiffness_(stiffness) {}
@@ -32,7 +34,8 @@ void DistanceConstraint::project(ParticleSystem& ps, std::size_t iterations) {
     return;
 
   float k_prime =
-      1.0f - std::pow((1.0f - stiffness_), 1.0f / (float)iterations);
+      1.0f
+      - std::pow((1.0f - stiffness_), 1.0f / static_cast<float>(iterations));
 
   float constraint_error = current_length - rest_dist_;
   glm::vec3 correction = (dir / current_length) * (constraint_error / w_sum);
@@ -159,7 +162,8 @@ void BendingConstraint::project(ParticleSystem& ps, std::size_t iterations) {
   glm::vec3 dir = center - p2;
 
   float k_prime =
-      1.0f - std::pow((1.0f - stiffness_), 1.0f / (float)iterations);
+      1.0f
+      - std::pow((1.0f - stiffness_), 1.0f / static_cast<float>(iterations));
 
   glm::vec3 correction = dir * k_prime;
 

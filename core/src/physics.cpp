@@ -7,7 +7,7 @@
 
 namespace core {
 
-// ================================= Physics =============================== //
+// ========================================================================= //
 
 Physics::Physics(ParticleSystem* ps, glm::vec3 gravity = Physics::kGravity)
     : ps_(ps), gravity_(gravity) {}
@@ -20,9 +20,9 @@ Physics::~Physics() {
   constraints_.clear();
 }
 
-// --------------------------------  get/set ------------------------------- //
+// ------------------------------------------------------------------------- //
 
-void Physics::set_gravity(glm::vec3& gravity) {
+void Physics::set_gravity(const glm::vec3& gravity) {
   gravity_ = gravity;
 }
 
@@ -32,6 +32,18 @@ glm::vec3& Physics::get_gravity() {
 
 const glm::vec3& Physics::get_gravity() const {
   return gravity_;
+}
+
+void Physics::set_iterations(std::size_t iterations) {
+  iterations_ = iterations;
+}
+
+std::size_t& Physics::get_iterations() {
+  return iterations_;
+}
+
+const std::size_t& Physics::get_iterations() const {
+  return iterations_;
 }
 
 std::vector<Constraint*> Physics::get_constraints() {
@@ -87,9 +99,9 @@ void Physics::update(float dt) {
     constraint->prepare(*ps_, dt);
   }
 
-  for (std::size_t iter = 0; iter < kPosIterations; ++iter) {
+  for (std::size_t iter = 0; iter < iterations_; ++iter) {
     for (auto* constraint : constraints_) {
-      constraint->project(*ps_, kPosIterations);
+      constraint->project(*ps_, iterations_);
     }
   }
 
@@ -102,6 +114,6 @@ void Physics::update(float dt) {
   }
 }
 
-// ===================== ############################## ==================== //
+// ========================================================================= //
 
 }  // namespace core
