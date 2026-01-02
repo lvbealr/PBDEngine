@@ -12,7 +12,7 @@ namespace core {
 // ========================================================================= //
 
 Physics::Physics(ParticleSystem* ps, details::Config* config)
-    : ps_(ps), config_(config) {}
+    : ps_(ps), config_(config), grid_(0.4f, ps->get_current().size()) {}
 
 Physics::~Physics() {
   for (auto* c : constraints_) {
@@ -54,6 +54,14 @@ std::vector<Constraint*>* Physics::get_constraints() {
 
 const std::vector<Constraint*>* Physics::get_constraints() const {
   return &constraints_;
+}
+
+details::Config* Physics::get_config() {
+  return config_;
+}
+
+const details::Config* Physics::get_config() const {
+  return config_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -109,12 +117,15 @@ void Physics::update(float dt) {
     constraint->prepare(*ps_, dt);
   }
 
+  grid_.build(ps_->get_predicted());
+
   for (std::size_t iter = 0; iter < config_->iterations; ++iter) {
     for (auto* constraint : constraints_) {
       constraint->project(*ps_, config_->iterations);
     }
 
-    resolve_self_collisions(*ps_);
+    resolve_sphere_collision();
+    resolve_self_collision();
   }
 
   for (std::size_t i = 0; i < count; ++i) {
@@ -144,40 +155,62 @@ void Physics::update(float dt) {
   }
 }
 
-void Physics::resolve_self_collisions(ParticleSystem& ps) {
-  auto& predicted = ps.get_predicted();
-  const auto& inv_masses = ps.get_inv_masses();
-  float radius = 0.2f;
-  float min_dist = radius * 2.0f;
+void Physics::resolve_self_collision() {
+  auto& predicted = ps_->get_predicted();
+  const auto& inv_masses = ps_->get_inv_masses();
 
-  SpatialHashGrid grid(min_dist);
-  grid.build(predicted);
+  float spacing = config_->cloth_spacing; // TODO:
+  float min_dist = spacing * 0.8f;
+  float min_dist_sq = min_dist * min_dist;
 
   for (std::size_t i = 0; i < predicted.size(); ++i) {
-    if (inv_masses[i] == 0.0f) {
+    if (inv_masses[i] == 0.0f)
       continue;
-    }
 
-    auto neighbors = grid.get_neighbours(predicted[i]);
-    for (std::size_t j : neighbors) {
-      if (i == j) {
+    grid_.query_neighbours(predicted[i], neighbour_buffer_);
+
+    for (std::size_t j : neighbour_buffer_) {
+      if (i <= j) {
         continue;
       }
 
       glm::vec3 dir = predicted[i] - predicted[j];
-      float dist = glm::length(dir);
+      float dist_sq = glm::dot(dir, dir);
 
-      if (dist < min_dist && dist > 1e-6f) {
-        float w1 = inv_masses[i];
-        float w2 = inv_masses[j];
-        float w_sum = w1 + w2;
+      if (dist_sq < min_dist_sq && dist_sq > 1e-8f) {
+        float dist = std::sqrt(dist_sq);
+        float w_sum = inv_masses[i] + inv_masses[j];
+        glm::vec3 correction =
+            (dir / dist) * ((min_dist - dist) / w_sum) * 0.5f;
 
-        float error = min_dist - dist;
-        glm::vec3 correction = (dir / dist) * (error / w_sum);
-
-        predicted[i] += w1 * correction;
-        predicted[j] -= w2 * correction;
+        predicted[i] += inv_masses[i] * correction;
+        predicted[j] -= inv_masses[j] * correction;
       }
+    }
+  }
+}
+
+void Physics::resolve_sphere_collision() {
+  if (!config_->sphere_active) {
+    return;
+  }
+
+  auto& predicted = ps_->get_predicted();
+  const glm::vec3 center = config_->sphere_pos;
+  const float radius = config_->sphere_radius;
+  const float radius_sq = radius * radius;
+
+  for (size_t i = 0; i < predicted.size(); ++i) {
+    glm::vec3 dir = predicted[i] - center;
+    float dist_sq = glm::dot(dir, dir);
+
+    if (dist_sq < radius_sq) {
+      float dist = std::sqrt(dist_sq);
+      if (dist < 1e-6f) {
+        continue;
+      }
+
+      predicted[i] = center + (dir / dist) * radius;
     }
   }
 }

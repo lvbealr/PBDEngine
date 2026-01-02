@@ -15,6 +15,10 @@ struct Config {
   bool wind_enabled = false;
   float wind_strength = 12.0f;
   bool show_fps = false;
+  bool sphere_active = false;
+  glm::vec3 sphere_pos = {0.0f, 5.0f, 0.0f};
+  float sphere_radius = 1.0f;
+  float cloth_spacing = 0.4f;
 };
 }  // namespace details
 

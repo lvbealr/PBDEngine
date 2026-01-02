@@ -7,6 +7,7 @@
 #include "particle_system.hpp"
 #include "constraints.hpp"
 #include "common.hpp"
+#include "self_collision.hpp"
 
 namespace core {
 
@@ -14,7 +15,6 @@ namespace core {
 
 class Physics {
  public:
-  Physics() = default;
   Physics(ParticleSystem* ps, details::Config* config);
   Physics(Physics& /* unused */) = default;
   Physics(Physics&& /* unused */) noexcept = default;
@@ -35,18 +35,25 @@ class Physics {
   std::vector<Constraint*>* get_constraints();
   const std::vector<Constraint*>* get_constraints() const;
 
+  details::Config* get_config();
+  const details::Config* get_config() const;
+
  public:
   void add_constraint(Constraint* constraint);
   void remove_constraint(Constraint* constraint);
   void update(float dt);
 
  private:
-  void resolve_self_collisions(ParticleSystem& ps);
+  void resolve_self_collision();
+  void resolve_sphere_collision();
 
  private:
   ParticleSystem* ps_;
   details::Config* config_;
   std::vector<Constraint*> constraints_;
+
+  SpatialHashGrid grid_;
+  std::vector<std::size_t> neighbour_buffer_;
 };
 
 // ========================================================================= //
