@@ -35,8 +35,8 @@ class Physics {
   std::size_t& get_iterations();
   const std::size_t& get_iterations() const;
 
-  std::vector<Constraint*> get_constraints();
-  const std::vector<Constraint*> get_constraints() const;
+  std::vector<Constraint*>* get_constraints();
+  const std::vector<Constraint*>* get_constraints() const;
 
  public:
   void add_constraint(Constraint* constraint);

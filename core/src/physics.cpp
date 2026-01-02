@@ -47,12 +47,12 @@ const std::size_t& Physics::get_iterations() const {
   return iterations_;
 }
 
-std::vector<Constraint*> Physics::get_constraints() {
-  return constraints_;
+std::vector<Constraint*>* Physics::get_constraints() {
+  return &constraints_;
 }
 
-const std::vector<Constraint*> Physics::get_constraints() const {
-  return constraints_;
+const std::vector<Constraint*>* Physics::get_constraints() const {
+  return &constraints_;
 }
 
 // ------------------------------------------------------------------------- //
@@ -90,11 +90,11 @@ void Physics::update(float dt) {
 
     glm::vec3 external_force = gravity_;
 
-    float wind_wave = sin(time * 3.0f + current[i].x * 0.5f) * 4.0f;
-    float wind_strength = 12.0f + wind_wave;
-    external_force += glm::vec3(0.0f, 0.0f, wind_strength);
-
-    external_force.y += cos(time * 5.0f) * 2.0f;
+    // TODO: on by button
+    // float wind_wave = sin(time * 3.0f + current[i].x * 0.5f) * 4.0f;
+    // float wind_strength = 12.0f + wind_wave;
+    // external_force += glm::vec3(0.0f, 0.0f, wind_strength);
+    // external_force.y += cos(time * 5.0f) * 2.0f;
 
     velocities[i] += external_force * dt;
 

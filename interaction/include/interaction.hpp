@@ -25,6 +25,8 @@ class InteractionSystem {
   void move_grabbed(const Camera3D& camera);
   void release();
 
+  void process_cutting(const Camera3D& camera);
+
  private:
   core::Physics* physics_;
   core::ParticleSystem* ps_;
