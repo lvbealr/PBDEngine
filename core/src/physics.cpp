@@ -63,6 +63,12 @@ void Physics::add_constraint(Constraint* constraint) {
   }
 }
 
+void Physics::remove_constraint(Constraint* constraint) {
+  constraints_.erase(
+      std::remove(constraints_.begin(), constraints_.end(), constraint),
+      constraints_.end());
+}
+
 void Physics::update(float dt) {
   if (dt <= 0.0f) {
     return;

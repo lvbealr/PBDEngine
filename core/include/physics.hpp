@@ -40,6 +40,7 @@ class Physics {
 
  public:
   void add_constraint(Constraint* constraint);
+  void remove_constraint(Constraint* constraint);
   void update(float dt);
 
  private:
