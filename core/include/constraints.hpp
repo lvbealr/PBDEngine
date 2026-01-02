@@ -10,6 +10,7 @@ namespace core {
 enum class ConstraintType {
   Distance,
   Bending,
+  Area,
   Volume,
   Collision,
   Attachment
@@ -111,6 +112,46 @@ class BendingConstraint : public Constraint {
 
  private:
   std::vector<std::size_t> indices_;
+  float stiffness_;
+};
+
+// ========================================================================= //
+
+class AreaConstraint : public Constraint {
+ public:
+  AreaConstraint(std::size_t i1, std::size_t i2, std::size_t i3,
+                 float stiffness = 1.0f);
+
+  void prepare(const ParticleSystem& ps, float dt) override;
+  void project(ParticleSystem& ps, std::size_t iterations) override;
+
+  std::vector<std::size_t>& get_indices() override;
+  const std::vector<std::size_t>& get_indices() const override;
+  ConstraintType get_type() const override;
+
+ private:
+  std::vector<std::size_t> indices_;
+  float rest_area_ = -1.0f;
+  float stiffness_;
+};
+
+// ========================================================================= //
+
+class VolumeConstraint : public Constraint {
+ public:
+  VolumeConstraint(std::size_t i1, std::size_t i2, std::size_t i3,
+                   std::size_t i4, float stiffness);
+
+  void prepare(const ParticleSystem& ps, float dt) override;
+  void project(ParticleSystem& ps, std::size_t iterations) override;
+
+  std::vector<std::size_t>& get_indices() override;
+  const std::vector<std::size_t>& get_indices() const override;
+  ConstraintType get_type() const override;
+
+ private:
+  std::vector<std::size_t> indices_;
+  float rest_volume_ = -1.0f;
   float stiffness_;
 };
 
