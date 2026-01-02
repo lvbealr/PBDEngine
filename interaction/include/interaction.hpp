@@ -19,6 +19,7 @@ class InteractionSystem {
  public:
   void update(const Camera3D& camera);
   bool is_grabbing() const;
+  int get_grabbed_index() const;
 
  private:
   void try_grab(const Camera3D& camera);
@@ -26,6 +27,9 @@ class InteractionSystem {
   void release();
 
   void process_cutting(const Camera3D& camera);
+
+  void handle_pin_input();
+  void process_pinning();
 
  private:
   core::Physics* physics_;

@@ -24,8 +24,22 @@ void InteractionSystem::update(const Camera3D& camera) {
     release();
   }
 
+  handle_pin_input();
+
   if (IsMouseButtonDown(MOUSE_BUTTON_RIGHT)) {
     process_cutting(camera);
+  }
+
+  if (IsKeyPressed(KEY_LEFT_SHIFT)) {
+    physics_->get_config()->sphere_active =
+        !physics_->get_config()->sphere_active;
+  }
+
+  if (physics_->get_config()->sphere_active) {
+    Ray ray = GetMouseRay(GetMousePosition(), camera);
+    Vector3 target =
+        Vector3Add(camera.position, Vector3Scale(ray.direction, 10.0f));
+    physics_->get_config()->sphere_pos = {target.x, target.y, target.z};
   }
 }
 
@@ -81,7 +95,8 @@ void InteractionSystem::process_cutting(const Camera3D& camera) {
   const auto& positions = ps_->get_current();
   auto* constraints = physics_->get_constraints();
 
-  const float cutting_threshold = 0.4f; // TODO:
+  const float cutting_threshold =
+      physics_->get_config()->cloth_spacing; // TODO:
 
   for (auto it = constraints->begin(); it != constraints->end();) {
     if ((*it)->get_type() == core::ConstraintType::Collision) {
@@ -114,6 +129,29 @@ void InteractionSystem::process_cutting(const Camera3D& camera) {
     } else {
       ++it;
     }
+  }
+}
+
+void InteractionSystem::handle_pin_input() {
+  if (IsKeyPressed(KEY_F)) {
+    if (grabbed_idx_ != kNotGrabbing) {
+      process_pinning();
+    }
+  }
+}
+
+int InteractionSystem::get_grabbed_index() const {
+  return grabbed_idx_;
+}
+
+void InteractionSystem::process_pinning() {
+  auto& inv_masses = ps_->get_inv_masses();
+
+  if (inv_masses[grabbed_idx_] == 0.0f) {
+    inv_masses[grabbed_idx_] = 1.0f;
+  } else {
+    inv_masses[grabbed_idx_] = 0.0f;
+    ps_->get_velocities()[grabbed_idx_] = glm::vec3(0.0f);
   }
 }
 
